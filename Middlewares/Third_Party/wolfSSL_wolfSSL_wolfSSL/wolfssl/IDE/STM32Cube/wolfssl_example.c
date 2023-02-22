@@ -1867,7 +1867,7 @@ void wolfCryptDemo(const void* argument)
         memset(&args, 0, sizeof(args));
         args.return_code = NOT_COMPILED_IN; /* default */
 
-        printf("\n\t\t\t\tMENU\n");
+        printf("\n\tMENU\n");
         printf(menu1);
         printf("Please select one of the above options:\n");
 

@@ -433,13 +433,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOI_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOI, GPIO_PIN_13, GPIO_PIN_SET);
@@ -474,9 +474,6 @@ void StartDefaultTask(void *argument)
   {
     osDelay(500);
     HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_13);
-    uint8_t message[] = "test\n\r";
-    int halRet = HAL_UART_Transmit(&HAL_CONSOLE_UART, message, sizeof(message), 100u);
-    (void) halRet;
   }
   /* USER CODE END 5 */
 }

@@ -16,8 +16,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef USER_SETTINGS_H_
-#define USER_SETTINGS_H_
+#ifndef __WOLFSSL_I_CUBE_WOLFSSL_CONF_H__
+#define __WOLFSSL_I_CUBE_WOLFSSL_CONF_H__
 
 #ifdef __cplusplus
  extern "C" {
@@ -46,7 +46,7 @@
 #define WOLF_CONF_DTLS      1
 
 /*---------- WOLF_CONF_MATH -----------*/
-#define WOLF_CONF_MATH      1
+#define WOLF_CONF_MATH      4
 
 /*---------- WOLF_CONF_RTOS -----------*/
 #define WOLF_CONF_RTOS      2
@@ -202,18 +202,18 @@
         #define WOLFSSL_STM32_PKA
     #endif
 #else
-    //#warning Please define a hardware platform!
+    #warning Please define a hardware platform!
     /* This means there is not a pre-defined platform for your board/CPU */
     /* You need to define a CPU type, HW crypto and debug UART */
     /* CPU Type: WOLFSSL_STM32F1, WOLFSSL_STM32F2, WOLFSSL_STM32F4,
         WOLFSSL_STM32F7, WOLFSSL_STM32H7, WOLFSSL_STM32L4, WOLFSSL_STM32L5,
         WOLFSSL_STM32G0, WOLFSSL_STM32WB and WOLFSSL_STM32U5 */
-    #define WOLFSSL_STM32H7
+    #define WOLFSSL_STM32F4
 
     /* Debug UART used for printf */
     /* The UART interface number varies for each board/CPU */
     /* Typically this is the UART attached to the ST-Link USB CDC UART port */
-    #define HAL_CONSOLE_UART huart3
+    #define HAL_CONSOLE_UART huart4
 
     /* Hardware Crypto - uncomment as available on hardware */
     //#define WOLFSSL_STM32_PKA
