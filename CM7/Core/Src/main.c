@@ -187,15 +187,22 @@ int main(void)
   /* USER CODE END RTOS_EVENTS */
 
   /* Start scheduler */
-  osKernelStart();
+  //osKernelStart();
 
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  const char x[] = "test\n";
+
+
+
   while (1)
   {
     /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
+    HAL_StatusTypeDef status = HAL_UART_Transmit(huart4, x, sizeof(x), 10u);
+    HAL_GPIO_TogglePin(GPIOI,  GPIO_PIN_13);
+    HAL_Delay(500);
   }
   /* USER CODE END 3 */
 }

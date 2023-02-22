@@ -10,3 +10,4 @@ CM4/Debug/makefile
 *.elf
 *.map
 *.launch
+*.prefs
