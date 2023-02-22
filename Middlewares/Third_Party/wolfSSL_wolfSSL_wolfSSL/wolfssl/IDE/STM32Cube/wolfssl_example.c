@@ -1919,7 +1919,7 @@ void wolfCryptDemo(const void* argument)
         case 's':
         #ifndef NO_WOLFSSL_SERVER
             printf("Running TLS 1.3 server...\n");
-            args.return_code = tls13_uart_server();
+            // args.return_code = tls13_uart_server();
         #else
             args.return_code = NOT_COMPILED_IN;
         #endif
@@ -1929,7 +1929,7 @@ void wolfCryptDemo(const void* argument)
         case 'c':
         #ifndef NO_WOLFSSL_CLIENT
             printf("Running TLS 1.3 client...\n");
-            args.return_code = tls13_uart_client();
+            // args.return_code = tls13_uart_client();
         #else
             args.return_code = NOT_COMPILED_IN;
         #endif

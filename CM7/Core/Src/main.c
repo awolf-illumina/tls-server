@@ -20,6 +20,8 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "lwip.h"
+#include "wolfssl_example.h"
+#include "wolfssl/wolfcrypt/settings.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -45,12 +47,11 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
-CRC_HandleTypeDef hcrc;
-
 RNG_HandleTypeDef hrng;
-
+CRC_HandleTypeDef hcrc;
+RNG_HandleTypeDef hrng;
 UART_HandleTypeDef huart3;
+UART_HandleTypeDef huart4;
 
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -63,7 +64,7 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t wolfDemoTaskHandle;
 const osThreadAttr_t wolfDemoTask_attributes = {
   .name = "wolfDemoTask",
-  .stack_size = 4000 * 4,
+  .stack_size = 16000 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
 /* USER CODE BEGIN PV */
@@ -85,7 +86,28 @@ extern void wolfCryptDemo(void *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* Retargets the C library printf function to the USART. */
+#include <stdio.h>
+#ifdef __GNUC__
+int __io_putchar(int ch)
+#else
+int fputc(int ch, FILE *f)
+#endif
+{
+    HAL_UART_Transmit(&HAL_CONSOLE_UART, (uint8_t *)&ch, 1, 0xFFFF);
 
+    return ch;
+}
+#ifdef __GNUC__
+int _write(int file,char *ptr, int len)
+{
+    int DataIdx;
+    for (DataIdx= 0; DataIdx< len; DataIdx++) {
+        __io_putchar(*ptr++);
+    }
+    return len;
+}
+#endif
 /* USER CODE END 0 */
 
 /**
@@ -97,9 +119,9 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-/* USER CODE BEGIN Boot_Mode_Sequence_0 */
+  /* USER CODE BEGIN Boot_Mode_Sequence_0 */
   int32_t timeout;
-/* USER CODE END Boot_Mode_Sequence_0 */
+  /* USER CODE END Boot_Mode_Sequence_0 */
 
   /* Enable I-Cache---------------------------------------------------------*/
   SCB_EnableICache();
@@ -107,29 +129,24 @@ int main(void)
   /* Enable D-Cache---------------------------------------------------------*/
   SCB_EnableDCache();
 
-/* USER CODE BEGIN Boot_Mode_Sequence_1 */
-  /* Wait until CPU2 boots and enters in stop mode or timeout*/
-  timeout = 0xFFFF;
-  while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) != RESET) && (timeout-- > 0));
-  if ( timeout < 0 )
-  {
-    //Error_Handler();
-  }
+  /* USER CODE BEGIN Boot_Mode_Sequence_1 */
 
-
-/* USER CODE END Boot_Mode_Sequence_1 */
+  /* USER CODE END Boot_Mode_Sequence_1 */
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  /* Turn off buffers, so I/O occurs immediately */
+  setvbuf(stdin, NULL, _IONBF, 0);
+  setvbuf(stdout, NULL, _IONBF, 0);
+  setvbuf(stderr, NULL, _IONBF, 0);
   /* USER CODE END Init */
 
   /* Configure the system clock */
   SystemClock_Config();
-/* USER CODE BEGIN Boot_Mode_Sequence_2 */
+  /* USER CODE BEGIN Boot_Mode_Sequence_2 */
   /* When system initialization is finished, Cortex-M7 will release Cortex-M4 by means of HSEM notification */
   /*HW semaphore Clock enable*/
   __HAL_RCC_HSEM_CLK_ENABLE();
@@ -141,13 +158,8 @@ int main(void)
   HAL_HSEM_Release(HSEM_ID_0,0);
 
   /* wait until CPU2 wakes up from stop mode */
-  timeout = 0xFFFF;
-  while((__HAL_RCC_GET_FLAG(RCC_FLAG_D2CKRDY) == RESET) && (timeout-- > 0));
-  if ( timeout < 0 )
-  {
-    // Error_Handler();
-  }
-/* USER CODE END Boot_Mode_Sequence_2 */
+
+  /* USER CODE END Boot_Mode_Sequence_2 */
 
   /* USER CODE BEGIN SysInit */
 
@@ -422,6 +434,27 @@ void StartDefaultTask(void *argument)
 
   }
   /* USER CODE END 5 */
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM1 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
 }
 
 /**
