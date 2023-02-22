@@ -1,0 +1,12 @@
+﻿CM4/.settings/language.settings.xml
+CM4/.settings/stm32cubeide.project.prefs
+*.d
+*.o
+CM4/Debug/Common/Src/subdir.mk
+*.su
+*.mk
+CM4/Debug/makefile
+*.list
+*.elf
+*.map
+*.launch
