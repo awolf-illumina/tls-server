@@ -44,6 +44,7 @@ C_SOURCES += app/sysmem.c
 C_SOURCES += source/app_ethernet/app_ethernet.c
 C_SOURCES += source/ethernetif/ethernetif.c
 C_SOURCES += source/tcp_echoserver/tcp_echoserver.c
+C_SOURCES += source/wolfssl_example/wolfssl_example.c
 C_SOURCES += Drivers/BSP/Components/lan8742/lan8742.c
 C_SOURCES += Drivers/BSP/STM32H7xx_Nucleo/stm32h7xx_nucleo.c
 C_SOURCES += Drivers/CMSIS/Device/ST/STM32H7xx/system_stm32h7xx.c
@@ -103,7 +104,107 @@ C_SOURCES += external/LwIP/src/core/tcp_out.c
 C_SOURCES += external/LwIP/src/core/timeouts.c
 C_SOURCES += external/LwIP/src/core/udp.c
 C_SOURCES += external/LwIP/src/netif/ethernet.c
-C_SOURCES += external/LwIP/system/OS/sys_arch.c 
+C_SOURCES += external/LwIP/system/OS/sys_arch.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/aes.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/arc4.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-32-curve25519_c.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-32-sha512-asm_c.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-aes.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-chacha.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-curve25519_c.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-poly1305.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-sha256.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/arm/armv8-sha512.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/asm.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/asn.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/atmel/atmel.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/blake2b.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/blake2s.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/camellia.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/chacha.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/chacha20_poly1305.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/cmac.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/coding.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/compress.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/cpuid.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/curve25519.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/curve448.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/des3.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/dh.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/dsa.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ecc.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ecc_fp.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/eccsi.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ed25519.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ed448.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/error.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/evp.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/fe_448.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/fe_low_mem.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/fe_operations.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ge_448.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ge_low_mem.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ge_operations.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/hash.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/hmac.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/integer.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/kdf.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/logging.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/md2.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/md4.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/md5.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/memory.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/misc.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/pkcs12.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/pkcs7.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/poly1305.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/pwdbased.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/random.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/rc2.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/ripemd.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/rsa.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sakke.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sha.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sha256.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sha3.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sha512.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/signature.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_arm32.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_arm64.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_armthumb.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_c32.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_c64.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_cortexm.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_dsp32.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_int.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/sp_x86_64.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/srp.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/st/stm32.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/port/st/stsafe.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/tfm.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wc_dsp.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wc_encrypt.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wc_pkcs11.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wc_port.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wolfevent.c
+C_SOURCES += external/wolfssl/wolfcrypt/src/wolfmath.c 
+C_SOURCES += external/wolfssl/src/bio.c
+C_SOURCES += external/wolfssl/src/conf.c
+C_SOURCES += external/wolfssl/src/crl.c
+C_SOURCES += external/wolfssl/src/dtls.c
+C_SOURCES += external/wolfssl/src/dtls13.c
+C_SOURCES += external/wolfssl/src/internal.c
+C_SOURCES += external/wolfssl/src/keys.c
+C_SOURCES += external/wolfssl/src/ocsp.c
+C_SOURCES += external/wolfssl/src/pk.c
+C_SOURCES += external/wolfssl/src/quic.c
+C_SOURCES += external/wolfssl/src/sniffer.c
+C_SOURCES += external/wolfssl/src/ssl.c
+C_SOURCES += external/wolfssl/src/tls.c
+C_SOURCES += external/wolfssl/src/tls13.c
+C_SOURCES += external/wolfssl/src/wolfio.c
+C_SOURCES += external/wolfssl/src/x509.c
+C_SOURCES += external/wolfssl/src/x509_str.c 
 
 # ASM sources
 ASM_SOURCES :=
@@ -119,6 +220,7 @@ C_INCLUDES += -Iconfig
 C_INCLUDES += -Isource/app_ethernet/
 C_INCLUDES += -Isource/ethernetif/
 C_INCLUDES += -Isource/tcp_echoserver
+C_INCLUDES += -Isource/wolfssl_example
 C_INCLUDES += -IDrivers/BSP/Components/lan8742
 C_INCLUDES += -IDrivers/BSP/Components/Common
 C_INCLUDES += -IDrivers/BSP/STM32H7xx_Nucleo
@@ -128,27 +230,20 @@ C_INCLUDES += -IDrivers/CMSIS/Device/ST/STM32H7xx/Include
 C_INCLUDES += -IDrivers/CMSIS/Include
 C_INCLUDES += -Iexternal/LwIP/system
 C_INCLUDES += -Iexternal/LwIP/src/include
+C_INCLUDES += -Iexternal/wolfssl/
 
 #######################################
 # binaries
 #######################################
 PREFIX = arm-none-eabi-
-# The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
-# either it can be added to the PATH environment variable.
-ifdef GCC_PATH
-CC = $(GCC_PATH)/$(PREFIX)gcc
-AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
-CP = $(GCC_PATH)/$(PREFIX)objcopy
-SZ = $(GCC_PATH)/$(PREFIX)size
-else
+
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
 SZ = $(PREFIX)size
-endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
- 
+
 #######################################
 # CFLAGS
 #######################################
@@ -173,6 +268,7 @@ C_DEFS :=
 C_DEFS += -DUSE_HAL_DRIVER
 C_DEFS += -DSTM32H723xx
 C_DEFS += -DDEBUG
+C_DEFS += -DWOLFSSL_USER_SETTINGS
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

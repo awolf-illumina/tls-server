@@ -796,8 +796,6 @@ extern void uITRON4_free(void *p) ;
     #undef  XREALLOC
     #define XREALLOC    yaXREALLOC
 #endif
-
-
 #ifdef FREERTOS
     #include "FreeRTOS.h"
 

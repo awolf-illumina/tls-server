@@ -32,20 +32,47 @@
 #include "main.h"
 #include "app_ethernet.h"
 #include "tcp_echoserver.h"
+#include "user_settings.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif;
+UART_HandleTypeDef huart3;
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void BSP_Config(void);
 static void Netif_Config(void);
 static void MPU_Config(void);
 static void CPU_CACHE_Enable(void);
+static void MX_USART3_UART_Init(void);
+static void MX_GPIO_Init(void);
 
 /* Private functions ---------------------------------------------------------*/
+/* Retargets the C library printf function to the USART. */
+#include <stdio.h>
+#ifdef __GNUC__
+int __io_putchar(int ch)
+#else
+int fputc(int ch, FILE *f)
+#endif
+{
+    HAL_UART_Transmit(&HAL_CONSOLE_UART, (uint8_t *)&ch, 1, 0xFFFF);
+
+    return ch;
+}
+#ifdef __GNUC__
+int _write(int file,char *ptr, int len)
+{
+    int DataIdx;
+    for (DataIdx= 0; DataIdx< len; DataIdx++) {
+        __io_putchar(*ptr++);
+    }
+    return len;
+}
+#endif
 
 /**
   * @brief  Main program
@@ -70,6 +97,10 @@ int main(void)
   /* Configure the system clock to 520 MHz */
   SystemClock_Config();
 
+  /* Peripherals */
+  MX_USART3_UART_Init();
+  MX_GPIO_Init();
+
   /* Configure the LEDs ...*/
   BSP_Config();
 
@@ -82,9 +113,13 @@ int main(void)
   /* TCP echo server Init */
   tcp_echoserver_init();
 
+
   /* Infinite loop */
   while (1)
   {
+    const uint8_t data[] = "ASDF\n\r";
+    HAL_UART_Transmit(&HAL_CONSOLE_UART, data, sizeof(data), 0xFFFF);
+
     /* Read a received packet from the Ethernet buffers and send it
        to the lwIP for handling */
     ethernetif_input(&gnetif);
@@ -207,7 +242,7 @@ static void SystemClock_Config(void)
   ret = HAL_RCC_OscConfig(&RCC_OscInitStruct);
   if(ret != HAL_OK)
   {
-    while(1);
+    Error_Handler();
   }
 
 /* Select PLL as system clock source and configure  bus clocks dividers */
@@ -224,7 +259,7 @@ static void SystemClock_Config(void)
   ret = HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3);
   if(ret != HAL_OK)
   {
-    while(1);
+    Error_Handler();
   }
 
 /*
@@ -321,6 +356,66 @@ static void CPU_CACHE_Enable(void)
   SCB_EnableDCache();
 }
 
+/**
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+}
+
+/**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART1;
+  huart3.Init.BaudRate = 115200;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  huart3.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&huart3, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&huart3, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
+
+}
 #ifdef  USE_FULL_ASSERT
 
 /**
@@ -342,4 +437,17 @@ void assert_failed(uint8_t* file, uint32_t line)
 }
 #endif
 
-
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */
+}
