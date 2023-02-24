@@ -118,7 +118,7 @@
 /* This sets which UART to use for the console.  It is something you will have
  * to configure in STMCubeIDE and then change here. */
 #ifndef HAL_CONSOLE_UART
-#define HAL_CONSOLE_UART huart4
+#define HAL_CONSOLE_UART huart1
 #endif
 extern UART_HandleTypeDef HAL_CONSOLE_UART;
 
@@ -1511,7 +1511,7 @@ typedef struct {
 /* This sets which UART to do the TLS 1.3 connection over.  It is something you
  * will have to configure in STMCubeIDE and then change here. */
 #ifndef TLS_UART
-#define TLS_UART huart2
+#define TLS_UART huart42
 #endif
 /* If you get an undefined error here you can optionally disable the TLS
  * over UART test using NO_TLS_UART_TEST */

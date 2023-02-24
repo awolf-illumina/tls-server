@@ -157,6 +157,17 @@ void EXTI15_10_IRQHandler(void)
 }
 
 /**
+  * @brief  This function handles Tamper interrupt request.
+  * @param  None
+  * @retval None
+  */
+void TAMP_STAMP_IRQHandler(void)
+{
+  extern RTC_HandleTypeDef hrtc;
+  HAL_RTCEx_TamperTimeStampIRQHandler(&hrtc);
+}
+
+/**
   * @}
   */
 

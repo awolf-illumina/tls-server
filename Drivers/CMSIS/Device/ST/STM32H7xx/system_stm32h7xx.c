@@ -4,16 +4,16 @@
   * @author  MCD Application Team
   * @brief   CMSIS Cortex-M Device Peripheral Access Layer System Source File.
   *
-  *   This file provides two functions and one global variable to be called from 
+  *   This file provides two functions and one global variable to be called from
   *   user application:
-  *      - SystemInit(): This function is called at startup just after reset and 
+  *      - SystemInit(): This function is called at startup just after reset and
   *                      before branch to main program. This call is made inside
   *                      the "startup_stm32h7xx.s" file.
   *
   *      - SystemCoreClock variable: Contains the core clock (HCLK), it can be used
-  *                                  by the user application to setup the SysTick 
+  *                                  by the user application to setup the SysTick
   *                                  timer or configure other parameters.
-  *                                     
+  *
   *      - SystemCoreClockUpdate(): Updates the variable SystemCoreClock and must
   *                                 be called whenever the core clock is changed
   *                                 during program execution.
@@ -38,8 +38,8 @@
 
 /** @addtogroup stm32h7xx_system
   * @{
-  */  
-  
+  */
+
 /** @addtogroup STM32H7xx_System_Private_Includes
   * @{
   */
@@ -82,7 +82,7 @@
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
 /* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x00000000UL        /*!< Vector Table base offset field. 
+#define VECT_TAB_OFFSET  0x00000000UL        /*!< Vector Table base offset field.
                                       This value must be a multiple of 0x200. */
 /******************************************************************************/
 
@@ -104,7 +104,7 @@
   /* This variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetHCLKFreq()
-      3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency 
+      3) each time HAL_RCC_ClockConfig() is called to configure the system clock frequency
          Note: If you use this function to configure the system clock; then there
                is no need to call the 2 first functions listed above, since SystemCoreClock
                variable is updated automatically.
@@ -132,7 +132,7 @@ void SystemInit (void)
 #if defined (DATA_IN_D2_SRAM)
  __IO uint32_t tmpreg;
 #endif /* DATA_IN_D2_SRAM */
-    
+
   /* FPU settings ------------------------------------------------------------*/
   #if (__FPU_PRESENT == 1) && (__FPU_USED == 1)
     SCB->CPACR |= ((3UL << (10*2))|(3UL << (11*2)));  /* set CP10 and CP11 Full Access */
@@ -140,7 +140,7 @@ void SystemInit (void)
   /* Reset the RCC clock configuration to the default reset state ------------*/
   /* Set HSION bit */
   RCC->CR |= RCC_CR_HSION;
-  
+
   /* Reset CFGR register */
   RCC->CFGR = 0x00000000;
 
@@ -152,7 +152,7 @@ void SystemInit (void)
 
   /* Reset D2CFGR register */
   RCC->D2CFGR = 0x00000000;
-  
+
   /* Reset D3CFGR register */
   RCC->D3CFGR = 0x00000000;
 
@@ -170,14 +170,14 @@ void SystemInit (void)
   RCC->PLL2DIVR = 0x00000000;
 
   /* Reset PLL2FRACR register */
-  
+
   RCC->PLL2FRACR = 0x00000000;
   /* Reset PLL3DIVR register */
   RCC->PLL3DIVR = 0x00000000;
 
   /* Reset PLL3FRACR register */
   RCC->PLL3FRACR = 0x00000000;
-  
+
   /* Reset HSEBYP bit */
   RCC->CR &= 0xFFFBFFFFU;
 
@@ -204,8 +204,7 @@ void SystemInit (void)
   SCB->VTOR = D1_AXISRAM_BASE  | VECT_TAB_OFFSET;       /* Vector Table Relocation in Internal SRAM */
 #else
   SCB->VTOR = FLASH_BANK1_BASE | VECT_TAB_OFFSET;       /* Vector Table Relocation in Internal FLASH */
-#endif  
-
+#endif
 
 }
 
@@ -214,33 +213,33 @@ void SystemInit (void)
   *         The SystemCoreClock variable contains the core clock , it can
   *         be used by the user application to setup the SysTick timer or configure
   *         other parameters.
-  *           
+  *
   * @note   Each time the core clock changes, this function must be called
   *         to update SystemCoreClock variable value. Otherwise, any configuration
-  *         based on this variable will be incorrect.         
-  *     
-  * @note   - The system frequency computed by this function is not the real 
-  *           frequency in the chip. It is calculated based on the predefined 
+  *         based on this variable will be incorrect.
+  *
+  * @note   - The system frequency computed by this function is not the real
+  *           frequency in the chip. It is calculated based on the predefined
   *           constant and the selected clock source:
-  *             
-  *           - If SYSCLK source is CSI, SystemCoreClock will contain the CSI_VALUE(*)                                 
+  *
+  *           - If SYSCLK source is CSI, SystemCoreClock will contain the CSI_VALUE(*)
   *           - If SYSCLK source is HSI, SystemCoreClock will contain the HSI_VALUE(**)
-  *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(***) 
+  *           - If SYSCLK source is HSE, SystemCoreClock will contain the HSE_VALUE(***)
   *           - If SYSCLK source is PLL, SystemCoreClock will contain the CSI_VALUE(*),
   *             HSI_VALUE(**) or HSE_VALUE(***) multiplied/divided by the PLL factors.
   *
   *         (*) CSI_VALUE is a constant defined in stm32h7xx_hal.h file (default value
   *             4 MHz) but the real value may vary depending on the variations
-  *             in voltage and temperature.        
+  *             in voltage and temperature.
   *         (**) HSI_VALUE is a constant defined in stm32h7xx_hal.h file (default value
   *             64 MHz) but the real value may vary depending on the variations
-  *             in voltage and temperature.   
-  *    
+  *             in voltage and temperature.
+  *
   *         (***)HSE_VALUE is a constant defined in stm32h7xx_hal.h file (default value
   *              25 MHz), user has to ensure that HSE_VALUE is same as the real
   *              frequency of the crystal used. Otherwise, this function may
   *              have wrong result.
-  *                
+  *
   *         - The result of this function could be not correct when using fractional
   *           value for HSE crystal.
   * @param  None
@@ -324,10 +323,6 @@ void SystemCoreClockUpdate (void)
   /* SystemD2Clock frequency : AXI and AHBs Clock frequency  */
   SystemD2Clock = (SystemCoreClock >> ((D1CorePrescTable[(RCC->D1CFGR & RCC_D1CFGR_HPRE)>> RCC_D1CFGR_HPRE_Pos]) & 0x1FU));
 }
-  
-/**
-  * @}
-  */
 
 /**
   * @}
@@ -337,3 +332,6 @@ void SystemCoreClockUpdate (void)
   * @}
   */
 
+/**
+  * @}
+  */

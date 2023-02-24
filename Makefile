@@ -68,7 +68,13 @@ C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
-C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c 
+C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rng.c
+C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rng_ex.c
+C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc.c
+C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc_ex.c
+C_SOURCES += external/wolfssl/wolfcrypt/test/test.c
+C_SOURCES += external/wolfssl/wolfcrypt/benchmark/benchmark.c
 C_SOURCES += external/LwIP/src/api/api_lib.c
 C_SOURCES += external/LwIP/src/api/api_msg.c
 C_SOURCES += external/LwIP/src/api/err.c
@@ -204,7 +210,7 @@ C_SOURCES += external/wolfssl/src/tls.c
 C_SOURCES += external/wolfssl/src/tls13.c
 C_SOURCES += external/wolfssl/src/wolfio.c
 C_SOURCES += external/wolfssl/src/x509.c
-C_SOURCES += external/wolfssl/src/x509_str.c 
+C_SOURCES += external/wolfssl/src/x509_str.c
 
 # ASM sources
 ASM_SOURCES :=

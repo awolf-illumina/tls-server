@@ -40,6 +40,8 @@
 /* Private variables ---------------------------------------------------------*/
 struct netif gnetif;
 UART_HandleTypeDef huart3;
+UART_HandleTypeDef huart1;
+RTC_HandleTypeDef hrtc;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -49,6 +51,7 @@ static void MPU_Config(void);
 static void CPU_CACHE_Enable(void);
 static void MX_USART3_UART_Init(void);
 static void MX_GPIO_Init(void);
+static void MX_RTC_Init(void);
 
 /* Private functions ---------------------------------------------------------*/
 /* Retargets the C library printf function to the USART. */
@@ -100,11 +103,12 @@ int main(void)
   /* Configure the LEDs ...*/
   BSP_Config();
 
-  HAL_Delay(1u);
+  HAL_Delay(1u); // Need this or UART init may timeout
 
   /* Peripherals */
   MX_USART3_UART_Init();
   MX_GPIO_Init();
+  MX_RTC_Init();
 
   /* Initialize the LwIP stack */
   lwip_init();
@@ -116,6 +120,8 @@ int main(void)
   tcp_echoserver_init();
 
   printf("Starting TCP Server...\n");
+
+  wolfCryptDemo(0x00);
 
   /* Infinite loop */
   while (1)
@@ -270,7 +276,6 @@ static void SystemClock_Config(void)
         - Enabling the I/O Compensation Cell : setting bit[0] of register SYSCFG_CCCSR
 */
 
-
   __HAL_RCC_CSI_ENABLE() ;
 
   __HAL_RCC_SYSCFG_CLK_ENABLE() ;
@@ -407,6 +412,45 @@ static void MX_USART3_UART_Init(void)
   /* USER CODE END USART3_Init 2 */
 
 }
+
+/**
+  * @brief RTC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_RTC_Init(void)
+{
+
+  /* USER CODE BEGIN RTC_Init 0 */
+
+  /* USER CODE END RTC_Init 0 */
+
+  /* USER CODE BEGIN RTC_Init 1 */
+
+  /* USER CODE END RTC_Init 1 */
+
+  /** Initialize RTC Only
+  */
+    __HAL_RTC_RESET_HANDLE_STATE(&hrtc);
+    hrtc.Instance            = RTC;
+    hrtc.Init.HourFormat     = RTC_HOURFORMAT_12;
+    hrtc.Init.AsynchPrediv   = RTC_ASYNCH_PREDIV;
+    hrtc.Init.SynchPrediv    = RTC_SYNCH_PREDIV;
+    hrtc.Init.OutPut         = RTC_OUTPUT_DISABLE;
+    hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    hrtc.Init.OutPutType     = RTC_OUTPUT_TYPE_OPENDRAIN;
+
+    if (HAL_RTC_Init(&hrtc) != HAL_OK)
+    {
+      /* Initialization Error */
+      Error_Handler();
+    }
+  /* USER CODE BEGIN RTC_Init 2 */
+
+  /* USER CODE END RTC_Init 2 */
+
+}
+
 #ifdef  USE_FULL_ASSERT
 
 /**

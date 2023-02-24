@@ -205,6 +205,7 @@
     #define WOLFSSL_STM32H7
     #define HAL_CONSOLE_UART huart3
     #define WOLFSSL_LWIP
+    #define NO_TLS_UART_TEST
 #else
     #warning Please define a hardware platform!
     /* This means there is not a pre-defined platform for your board/CPU */
