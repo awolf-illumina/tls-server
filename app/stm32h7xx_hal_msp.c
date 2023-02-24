@@ -76,5 +76,56 @@ void HAL_MspInit(void)
 }
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief UART MSP Initialization
+  *        This function configures the hardware resources used in this example:
+  *           - Peripheral's clock enable
+  *           - Peripheral's GPIO Configuration
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+void HAL_UART_MspInit(UART_HandleTypeDef *huart)
+{
+  GPIO_InitTypeDef  GPIO_InitStruct;
+  RCC_PeriphCLKInitTypeDef RCC_PeriphClkInit;
 
+  /*##-1- Enable peripherals and GPIO Clocks #################################*/
+  /* Select PCLK2 as source of USART1 clocks */
+  RCC_PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART3;
+  RCC_PeriphClkInit.Usart16ClockSelection = RCC_USART3CLKSOURCE_D2PCLK1;
+  HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphClkInit);
+
+  /* Peripheral clock enable */
+  __HAL_RCC_USART3_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*##-2- Configure peripheral GPIO ##########################################*/
+  /* UART TX/RX GPIO pin configuration  */
+  GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+}
+
+/**
+  * @brief UART MSP De-Initialization
+  *        This function frees the hardware resources used in this example:
+  *          - Disable the Peripheral's clock
+  *          - Revert GPIO configuration to their default state
+  * @param huart: UART handle pointer
+  * @retval None
+  */
+void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
+{
+  /* Peripheral clock disable */
+  __HAL_RCC_USART3_CLK_DISABLE();
+
+  /**USART3 GPIO Configuration
+  PD8     ------> USART3_TX
+  PD9     ------> USART3_RX
+  */
+  HAL_GPIO_DeInit(GPIOD, GPIO_PIN_8|GPIO_PIN_9);
+}
 /* USER CODE END 1 */
