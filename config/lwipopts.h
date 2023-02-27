@@ -35,17 +35,10 @@
 #define __LWIPOPTS_H__
 
 /**
- * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
- * critical regions during buffer allocation, deallocation and memory
- * allocation and deallocation.
- */
-#define SYS_LIGHTWEIGHT_PROT    0
-
-/**
  * NO_SYS==1: Provides VERY minimal functionality. Otherwise,
  * use lwIP facilities.
  */
-#define NO_SYS                  1
+#define NO_SYS                  0
 
 /* ---------- Memory options ---------- */
 /* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
@@ -60,7 +53,6 @@ a lot of data that needs to be copied, this should be set high. */
 /* Relocate the LwIP RAM heap pointer */
 #define LWIP_RAM_HEAP_POINTER    (0x30004000)
 
-
 /* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
    connections. */
 #define MEMP_NUM_TCP_PCB        10
@@ -69,27 +61,26 @@ a lot of data that needs to be copied, this should be set high. */
    segments. */
 #define MEMP_NUM_TCP_SEG        TCP_SND_QUEUELEN
 
-
 /* ---------- Pbuf options ---------- */
+/* PBUF_POOL_SIZE: the number of buffers in the pbuf pool.
+   @ note: used to allocate Tx pbufs only */
 
-/* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool */
+/* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool. */
 #define PBUF_POOL_BUFSIZE       1536
 
-/* LWIP_SUPPORT_CUSTOM_PBUF == 1: to pass directly MAC Rx buffers to the stack 
+/* LWIP_SUPPORT_CUSTOM_PBUF == 1: to pass directly MAC Rx buffers to the stack
    no copy is needed */
 #define LWIP_SUPPORT_CUSTOM_PBUF      1
 
-/*
-   ------------------------------------------------
-   ---------- Network Interfaces options ----------
-   ------------------------------------------------
-*/
-#define LWIP_NETIF_LINK_CALLBACK        1
+/* ---------- IPv4 options ---------- */
+#define LWIP_IPV4                1
 
 /* ---------- TCP options ---------- */
 #define LWIP_TCP                1
 #define TCP_TTL                 255
 
+/* Controls if TCP should queue segments that arrive out of
+   order. Define to 0 if your device is low on memory. */
 
 /* TCP Maximum segment size. */
 #define TCP_MSS                 (1500 - 40)	  /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
@@ -99,7 +90,8 @@ a lot of data that needs to be copied, this should be set high. */
 
 
 /* TCP receive window. */
-#define TCP_WND                (4*TCP_MSS)
+#define TCP_WND                 (4*TCP_MSS)
+
 
 /* ---------- ICMP options ---------- */
 #define LWIP_ICMP                       1
@@ -117,18 +109,24 @@ a lot of data that needs to be copied, this should be set high. */
 /* ---------- Statistics options ---------- */
 #define LWIP_STATS 0
 
+/* ---------- link callback options ---------- */
+/* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
+ * whenever the link changes (i.e., link down)
+ */
+#define LWIP_NETIF_LINK_CALLBACK        1
+
 /*
    --------------------------------------
    ---------- Checksum options ----------
    --------------------------------------
 */
 
-/* 
+/*
 The STM32H7xx allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
-#define CHECKSUM_BY_HARDWARE 
+#define CHECKSUM_BY_HARDWARE
 
 
 #ifdef CHECKSUM_BY_HARDWARE
@@ -137,7 +135,7 @@ The STM32H7xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
   /* CHECKSUM_GEN_UDP==0: Generate checksums by hardware for outgoing UDP packets.*/
   #define CHECKSUM_GEN_UDP                0
   /* CHECKSUM_GEN_TCP==0: Generate checksums by hardware for outgoing TCP packets.*/
-  #define CHECKSUM_GEN_TCP                0 
+  #define CHECKSUM_GEN_TCP                0
   /* CHECKSUM_CHECK_IP==0: Check checksums by hardware for incoming IP packets.*/
   #define CHECKSUM_CHECK_IP               0
   /* CHECKSUM_CHECK_UDP==0: Check checksums by hardware for incoming UDP packets.*/
@@ -145,10 +143,11 @@ The STM32H7xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
   /* CHECKSUM_CHECK_TCP==0: Check checksums by hardware for incoming TCP packets.*/
   #define CHECKSUM_CHECK_TCP              0
   /* CHECKSUM_GEN_ICMP==1: Check checksums by hardware for outgoing ICMP packets.*/
-  /* Hardware TCP/UDP checksum insertion not supported when packet is an IPv4 fragment*/
+  /* Hardware TCP/UDP checksum insertion not supported when packet is an IPv4 fragment */
   #define CHECKSUM_GEN_ICMP               1
   /* CHECKSUM_CHECK_ICMP==0: Check checksums by hardware for incoming ICMP packets.*/
   #define CHECKSUM_CHECK_ICMP             0
+
 #else
   /* CHECKSUM_GEN_IP==1: Generate checksums in software for outgoing IP packets.*/
   #define CHECKSUM_GEN_IP                 1
@@ -187,7 +186,21 @@ The STM32H7xx allows computing and verifying the IP, UDP, TCP and ICMP checksums
 /**
  * LWIP_SOCKET==1: Enable Socket API (require to use sockets.c)
  */
-#define LWIP_SOCKET                     0
+#define LWIP_SOCKET                     1
+
+/*
+   ---------------------------------
+   ---------- OS options ----------
+   ---------------------------------
+*/
+#define TCPIP_THREAD_NAME              "TCP/IP"
+#define TCPIP_THREAD_STACKSIZE          2048
+#define TCPIP_MBOX_SIZE                 6
+#define DEFAULT_UDP_RECVMBOX_SIZE       6
+#define DEFAULT_TCP_RECVMBOX_SIZE       6
+#define DEFAULT_ACCEPTMBOX_SIZE         6
+#define DEFAULT_THREAD_STACKSIZE        1024
+#define TCPIP_THREAD_PRIO               osPriorityHigh
 
 #endif /* __LWIPOPTS_H__ */
 

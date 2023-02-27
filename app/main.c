@@ -34,6 +34,7 @@
 #include "tcp_echoserver.h"
 #include "user_settings.h"
 #include "wolfssl_example.h"
+#include "lwip/tcpip.h"
 
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +46,33 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart1;
 RTC_HandleTypeDef hrtc;
 
+/* Definitions for defaultTask */
+osThreadAttr_t attr;
+osThreadId LinkHandle;
+
+osThreadId_t defaultTaskHandle;
+const osThreadAttr_t defaultTask_attributes = {
+  .name = "defaultTask",
+  .stack_size = 2048 * 4,
+  .priority = 2,
+};
+
+/* Definitions for wolfDemoTask */
+osThreadId_t wolfDemoTaskHandle;
+const osThreadAttr_t wolfDemoTask_attributes = {
+  .name = "wolfDemoTask",
+  .stack_size = 8096 * 4,
+  .priority = 1,
+};
+
+/* Definitions for tcpTask */
+osThreadId_t tcpTaskHandle;
+const osThreadAttr_t tcpTask_attributes = {
+  .name = "tcpTask",
+  .stack_size = 8096 * 4,
+  .priority = 1,
+};
+
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void BSP_Config(void);
@@ -54,6 +82,8 @@ static void CPU_CACHE_Enable(void);
 static void MX_USART3_UART_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
+void StartDefaultTask(void *argument);
+void tcpTask(void *argument);
 
 /* Private functions ---------------------------------------------------------*/
 /* Retargets the C library printf function to the USART. */
@@ -105,45 +135,66 @@ int main(void)
   /* Configure the LEDs ...*/
   BSP_Config();
 
-  HAL_Delay(1u); // Need this or UART init may timeout
+  /* Kernel Init */
+  osKernelInitialize();
 
+  /* creation of defaultTask */
+  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+  /* Start scheduler */
+  osKernelStart();
+
+  /* We should never get here as control is now taken by the scheduler */
+  for( ;; );
+}
+
+/**
+ *
+*/
+void StartDefaultTask(void *argument)
+{
+  /* USER CODE BEGIN 5 */
   /* Peripherals */
   MX_USART3_UART_Init();
   MX_GPIO_Init();
   MX_RTC_Init();
 
-  /* Initialize the LwIP stack */
-  lwip_init();
+  /* Create tcp_ip stack thread */
+  tcpip_init(NULL, NULL);
 
   /* Configure the Network interface */
   Netif_Config();
 
-  /* TCP echo server Init */
-  // tcp_echoserver_init();
+  /* Start Tasks */
+  /* creation of wolfDemoTask */
+  //wolfDemoTaskHandle = osThreadNew(wolfCryptDemo, NULL, &wolfDemoTask_attributes);
 
-  printf("Starting TCP Server...\n");
-
-  // Start wolf Crypt Demo
-  wolfCryptDemo(0x00);
+  /* creation of tcp task */
+  tcpTaskHandle = osThreadNew(tcpTask, NULL, &tcpTask_attributes);
 
   /* Infinite loop */
-  while (1)
+  for(;;)
   {
-    /* Read a received packet from the Ethernet buffers and send it
-       to the lwIP for handling */
-    // ethernetif_input(&gnetif);
-
-    /* Handle timeouts */
-    // sys_check_timeouts();
-
-#if LWIP_NETIF_LINK_CALLBACK
-    // Ethernet_Link_Periodic_Handle(&gnetif);
-#endif
-
-#if LWIP_DHCP
-    // DHCP_Periodic_Handle(&gnetif);
-#endif
+    osDelay(250);
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);  // GREEN
+    osDelay(250);
+    HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);  // ORANGE
+    osDelay(250);
+    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); // RED
   }
+  /* USER CODE END 5 */
+}
+
+/**
+ *
+ */
+void tcpTask(void *argument)
+{
+    /* Infinite loop */
+    while (1)
+    {
+        osDelay(1u);
+    }
 }
 
 static void BSP_Config(void)
@@ -154,7 +205,7 @@ static void BSP_Config(void)
 }
 
 /**
-  * @brief  Setup the network interface
+  * @brief  Initializes the lwIP stack
   * @param  None
   * @retval None
   */
@@ -169,24 +220,34 @@ static void Netif_Config(void)
   ip_addr_set_zero_ip4(&netmask);
   ip_addr_set_zero_ip4(&gw);
 #else
-
-  /* IP address default setting */
-  IP4_ADDR(&ipaddr, IP_ADDR0, IP_ADDR1, IP_ADDR2, IP_ADDR3);
-  IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
-  IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
-
-#endif
+  IP_ADDR4(&ipaddr,IP_ADDR0,IP_ADDR1,IP_ADDR2,IP_ADDR3);
+  IP_ADDR4(&netmask,NETMASK_ADDR0,NETMASK_ADDR1,NETMASK_ADDR2,NETMASK_ADDR3);
+  IP_ADDR4(&gw,GW_ADDR0,GW_ADDR1,GW_ADDR2,GW_ADDR3);
+#endif /* LWIP_DHCP */
 
   /* add the network interface */
-  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &ethernet_input);
+  netif_add(&gnetif, &ipaddr, &netmask, &gw, NULL, &ethernetif_init, &tcpip_input);
 
-  /*  Registers the default network interface */
+  /*  Registers the default network interface. */
   netif_set_default(&gnetif);
 
   ethernet_link_status_updated(&gnetif);
 
 #if LWIP_NETIF_LINK_CALLBACK
   netif_set_link_callback(&gnetif, ethernet_link_status_updated);
+
+  attr.name = "EthLink";
+  attr.stack_size = 4 * configMINIMAL_STACK_SIZE;
+  attr.priority = osPriorityNormal;
+  LinkHandle = osThreadNew(ethernet_link_thread, &gnetif, &attr);
+#endif
+
+#if LWIP_DHCP
+  /* Start DHCPClient */
+  attr.name = "DHCP";
+  attr.stack_size = 4 * configMINIMAL_STACK_SIZE;
+  attr.priority = osPriorityBelowNormal;
+  DHCPHandle = osThreadNew(DHCP_Thread, &gnetif, &attr);
 #endif
 }
 
@@ -370,6 +431,21 @@ static void CPU_CACHE_Enable(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /*Configure GPIO pins : LED_GREEN_Pin LED_RED_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_14;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : LED_YELLOW_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();

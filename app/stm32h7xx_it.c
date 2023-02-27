@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    LwIP/LwIP_TCP_Echo_Server/Src/stm32h7xx_it.c
+  * @file    LwIP/LwIP_HTTP_Server_Socket_RTOS/Src/stm32h7xx_it.c 
   * @author  MCD Application Team
   * @brief   Main Interrupt Service Routines.
   ******************************************************************************
@@ -19,22 +19,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32h7xx_it.h"
 #include "main.h"
-
-/** @addtogroup STM32H7xx_HAL_applications
-  * @{
-  */
-
-/** @addtogroup Templates
-  * @{
-  */
+#include "cmsis_os.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-/* Exported variables ---------------------------------------------------------*/
 extern ETH_HandleTypeDef EthHandle;
 /* Private function prototypes -----------------------------------------------*/
+void ETH_IRQHandler(void);
 /* Private functions ---------------------------------------------------------*/
 
 /******************************************************************************/
@@ -102,14 +95,6 @@ void UsageFault_Handler(void)
   }
 }
 
-/**
-  * @brief  This function handles SVCall exception.
-  * @param  None
-  * @retval None
-  */
-void SVC_Handler(void)
-{
-}
 
 /**
   * @brief  This function handles Debug Monitor exception.
@@ -120,25 +105,6 @@ void DebugMon_Handler(void)
 {
 }
 
-/**
-  * @brief  This function handles PendSVC exception.
-  * @param  None
-  * @retval None
-  */
-void PendSV_Handler(void)
-{
-}
-
-/**
-  * @brief  This function handles SysTick Handler.
-  * @param  None
-  * @retval None
-  */
-void SysTick_Handler(void)
-{
-  HAL_IncTick();
-}
-
 
 /******************************************************************************/
 /*                 STM32H7xx Peripherals Interrupt Handlers                   */
@@ -147,25 +113,19 @@ void SysTick_Handler(void)
 /*  file (startup_stm32h7xx.s).                                               */
 /******************************************************************************/
 /**
-  * @brief  This function handles external lines 15 to 10 interrupt request.
+  * @brief  This function handles Ethernet interrupt request.
   * @param  None
   * @retval None
   */
-void EXTI15_10_IRQHandler(void)
+void ETH_IRQHandler(void)
 {
-  HAL_GPIO_EXTI_IRQHandler(BUTTON_USER_PIN);
+  HAL_ETH_IRQHandler(&EthHandle);
 }
 
+
 /**
-  * @brief  This function handles Tamper interrupt request.
-  * @param  None
-  * @retval None
+  * @}
   */
-void TAMP_STAMP_IRQHandler(void)
-{
-  extern RTC_HandleTypeDef hrtc;
-  HAL_RTCEx_TamperTimeStampIRQHandler(&hrtc);
-}
 
 /**
   * @}

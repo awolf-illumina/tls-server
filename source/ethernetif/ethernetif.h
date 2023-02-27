@@ -1,6 +1,6 @@
 /**
   ******************************************************************************
-  * @file    LwIP/LwIP_TCP_Echo_Server/Inc/ethernetif.h 
+  * @file    LwIP/LwIP_HTTP_Server_Socket_RTOS/Inc/ethernetif.h
   * @author  MCD Application Team
   * @brief   Header for ethernetif.c module
   ******************************************************************************
@@ -22,9 +22,11 @@
 
 #include "lwip/err.h"
 #include "lwip/netif.h"
+#include "cmsis_os.h"
 
 /* Exported types ------------------------------------------------------------*/
+/* Structure that include link thread parameters */
+/* Exported functions ------------------------------------------------------- */
 err_t ethernetif_init(struct netif *netif);
-void ethernetif_input(struct netif *netif);
-void ethernet_link_check_state(struct netif *netif);
+void ethernet_link_thread( void* argument );
 #endif

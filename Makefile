@@ -39,6 +39,7 @@ C_SOURCES :=
 C_SOURCES += app/main.c
 C_SOURCES += app/stm32h7xx_it.c
 C_SOURCES += app/stm32h7xx_hal_msp.c
+C_SOURCES += app/stm32h7xx_hal_timebase_tim.c
 C_SOURCES += app/syscalls.c
 C_SOURCES += app/sysmem.c
 C_SOURCES += source/app_ethernet/app_ethernet.c
@@ -73,6 +74,17 @@ C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rng.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rng_ex.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc.c
 C_SOURCES += Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rtc_ex.c
+
+C_SOURCES += external/FreeRTOS/Source/croutine.c
+C_SOURCES += external/FreeRTOS/Source/event_groups.c
+C_SOURCES += external/FreeRTOS/Source/list.c
+C_SOURCES += external/FreeRTOS/Source/queue.c
+C_SOURCES += external/FreeRTOS/Source/tasks.c
+C_SOURCES += external/FreeRTOS/Source/timers.c 
+C_SOURCES += external/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
+C_SOURCES += external/FreeRTOS/Source/portable/MemMang/heap_4.c
+C_SOURCES += external/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c 
+
 C_SOURCES += external/wolfssl/wolfcrypt/test/test.c
 C_SOURCES += external/wolfssl/wolfcrypt/benchmark/benchmark.c
 C_SOURCES += external/LwIP/src/api/api_lib.c
@@ -237,6 +249,12 @@ C_INCLUDES += -IDrivers/CMSIS/Include
 C_INCLUDES += -Iexternal/LwIP/system
 C_INCLUDES += -Iexternal/LwIP/src/include
 C_INCLUDES += -Iexternal/wolfssl/
+C_INCLUDES += -Iexternal/LwIP/src/include/compat/posix
+C_INCLUDES += -Iexternal/LwIP/src/include/compat/posix
+C_INCLUDES += -Iexternal/FreeRTOS/Source/include
+C_INCLUDES += -Iexternal/FreeRTOS/Source/CMSIS_RTOS_V2 
+C_INCLUDES += -Iexternal/FreeRTOS/Source/CMSIS_RTOS_V2
+C_INCLUDES += -Iexternal/FreeRTOS/Source/portable/GCC/ARM_CM4F
 
 #######################################
 # binaries
