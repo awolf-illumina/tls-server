@@ -33,6 +33,8 @@
 #include "app_ethernet.h"
 #include "tcp_echoserver.h"
 #include "user_settings.h"
+#include "wolfssl_example.h"
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -117,10 +119,11 @@ int main(void)
   Netif_Config();
 
   /* TCP echo server Init */
-  tcp_echoserver_init();
+  // tcp_echoserver_init();
 
   printf("Starting TCP Server...\n");
 
+  // Start wolf Crypt Demo
   wolfCryptDemo(0x00);
 
   /* Infinite loop */
@@ -128,17 +131,17 @@ int main(void)
   {
     /* Read a received packet from the Ethernet buffers and send it
        to the lwIP for handling */
-    ethernetif_input(&gnetif);
+    // ethernetif_input(&gnetif);
 
     /* Handle timeouts */
-    sys_check_timeouts();
+    // sys_check_timeouts();
 
 #if LWIP_NETIF_LINK_CALLBACK
-    Ethernet_Link_Periodic_Handle(&gnetif);
+    // Ethernet_Link_Periodic_Handle(&gnetif);
 #endif
 
 #if LWIP_DHCP
-    DHCP_Periodic_Handle(&gnetif);
+    // DHCP_Periodic_Handle(&gnetif);
 #endif
   }
 }

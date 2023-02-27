@@ -31,7 +31,7 @@
 	MiddleWare version :
 */
 /*---------- WOLF_CONF_DEBUG -----------*/
-#define WOLF_CONF_DEBUG      1
+#define WOLF_CONF_DEBUG      0
 
 /*---------- WOLF_CONF_WOLFCRYPT_ONLY -----------*/
 #define WOLF_CONF_WOLFCRYPT_ONLY      0
