@@ -37,6 +37,7 @@
 #include "ethernetif.h"
 #include "main.h"
 #include "app_ethernet.h"
+#include "tls_server.h"
 #include "tcp_echoserver.h"
 #include "user_settings.h"
 #include "wolfssl_example.h"
@@ -71,14 +72,6 @@ const osThreadAttr_t wolfDemoTask_attributes = {
   .priority = 1,
 };
 
-/* Definitions for tcpTask */
-osThreadId_t tcpTaskHandle;
-const osThreadAttr_t tcpTask_attributes = {
-  .name = "tcpTask",
-  .stack_size = 8096 * 4,
-  .priority = 1,
-};
-
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void BSP_Config(void);
@@ -89,7 +82,6 @@ static void MX_USART3_UART_Init(void);
 static void MX_GPIO_Init(void);
 static void MX_RTC_Init(void);
 void StartDefaultTask(void *argument);
-void tcpTask(void *argument);
 
 /* Private functions ---------------------------------------------------------*/
 /* Retargets the C library printf function to the USART. */
@@ -176,73 +168,32 @@ void StartDefaultTask(void *argument)
   //wolfDemoTaskHandle = osThreadNew(wolfCryptDemo, NULL, &wolfDemoTask_attributes);
 
   /* creation of tcp task */
-  tcpTaskHandle = osThreadNew(tcpTask, NULL, &tcpTask_attributes);
+  tls_server_create();
 
   /* Infinite loop */
   for(;;)
   {
     osDelay(250);
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);  // GREEN
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, 1);  // GREEN
     osDelay(250);
-    HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1);  // ORANGE
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 1);  // ORANGE
     osDelay(250);
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_14); // RED
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 1); // RED
+    osDelay(250);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, 0);
+    osDelay(250);
+    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, 0);
+    osDelay(250);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
+
   }
   /* USER CODE END 5 */
-}
-
-/**
- *
- */
-void tcpTask(void *argument)
-{
-  int sock, size, newconn;
-  struct sockaddr_in address, remotehost;
-  int ret;
-
-  /* create a TCP socket */
-  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) 
-  {
-    return;
-  }
-  
-  /* bind to port 7 at any interface */
-  address.sin_family = AF_INET;
-  address.sin_port = htons(7);
-  address.sin_addr.s_addr = INADDR_ANY;
-
-  if (bind(sock, (struct sockaddr *)&address, sizeof (address)) < 0)
-  {
-    return;
-  }
-  
-  /* listen for incoming connections (TCP listen backlog = 5) */
-  listen(sock, 5);
-  
-  size = sizeof(remotehost);
-  
-  while (1) 
-  {
-    uint8_t recv_buffer[100];
-    memset(recv_buffer, 0, sizeof(recv_buffer));
-
-    newconn = accept(sock, (struct sockaddr *)&remotehost, (socklen_t *) &size);
-
-    /* Read in the request */
-    ret = read(newconn, recv_buffer, sizeof(recv_buffer)); 
-
-    write(newconn, recv_buffer, ret);
-
-    /* Close connection socket */
-    close(newconn);
-  }
 }
 
 static void BSP_Config(void)
 {
   BSP_LED_Init(LED2);
   BSP_LED_Init(LED3);
-
 }
 
 /**
