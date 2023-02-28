@@ -179,6 +179,11 @@ BaseType_t xPortStartScheduler( void ) PRIVILEGED_FUNCTION;
  */
 void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
 
+/**
+ * 
+*/
+void *pvPortRealloc( void *pv, size_t xWantedSize );
+
 /*
  * The structures and methods of manipulating the MPU are contained within the
  * port layer.

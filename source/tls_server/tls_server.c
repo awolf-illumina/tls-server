@@ -45,6 +45,101 @@ static void _error_handler()
     }
 }
 
+int my_IORecv(WOLFSSL* ssl, char* buff, int sz, void* ctx)
+{
+    /* By default, ctx will be a pointer to the file descriptor to read from.
+     * This can be changed by calling wolfSSL_SetIOReadCtx(). */
+    int sockfd = *(int*)ctx;
+    int recvd;
+
+    /* Receive message from socket */
+    if ((recvd = recv(sockfd, buff, sz, 0)) == -1) {
+        /* error encountered. Be responsible and report it in wolfSSL terms */
+
+        printf("IO RECEIVE ERROR: ");
+        switch (errno) {
+        #if EAGAIN != EWOULDBLOCK
+        case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
+        #endif
+        case EWOULDBLOCK:
+            if (!wolfSSL_dtls(ssl) || wolfSSL_get_using_nonblock(ssl)) {
+                printf("would block\n");
+                return WOLFSSL_CBIO_ERR_WANT_READ;
+            }
+            else {
+                printf("socket timeout\n");
+                return WOLFSSL_CBIO_ERR_TIMEOUT;
+            }
+        case ECONNRESET:
+            printf("connection reset\n");
+            return WOLFSSL_CBIO_ERR_CONN_RST;
+        case EINTR:
+            printf("socket interrupted\n");
+            return WOLFSSL_CBIO_ERR_ISR;
+        case ECONNREFUSED:
+            printf("connection refused\n");
+            return WOLFSSL_CBIO_ERR_WANT_READ;
+        case ECONNABORTED:
+            printf("connection aborted\n");
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+        default:
+            printf("general error\n");
+            return WOLFSSL_CBIO_ERR_GENERAL;
+        }
+    }
+    else if (recvd == 0) {
+        printf("Connection closed\n");
+        return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+    }
+
+    /* successful receive */
+    printf("my_IORecv: received %d bytes from %d\n", sz, sockfd);
+    return recvd;
+}
+
+int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
+{
+    /* By default, ctx will be a pointer to the file descriptor to write to.
+     * This can be changed by calling wolfSSL_SetIOWriteCtx(). */
+    int sockfd = *(int*)ctx;
+    int sent;
+
+    /* Receive message from socket */
+    if ((sent = send(sockfd, buff, sz, 0)) == -1) {
+        /* error encountered. Be responsible and report it in wolfSSL terms */
+
+        printf("IO SEND ERROR: ");
+        switch (errno) {
+        #if EAGAIN != EWOULDBLOCK
+        case EAGAIN: /* EAGAIN == EWOULDBLOCK on some systems, but not others */
+        #endif
+        case EWOULDBLOCK:
+            printf("would block\n");
+            return WOLFSSL_CBIO_ERR_WANT_WRITE;
+        case ECONNRESET:
+            printf("connection reset\n");
+            return WOLFSSL_CBIO_ERR_CONN_RST;
+        case EINTR:
+            printf("socket interrupted\n");
+            return WOLFSSL_CBIO_ERR_ISR;
+        case EPIPE:
+            printf("socket EPIPE\n");
+            return WOLFSSL_CBIO_ERR_CONN_CLOSE;
+        default:
+            printf("general error\n");
+            return WOLFSSL_CBIO_ERR_GENERAL;
+        }
+    }
+    else if (sent == 0) {
+        printf("Connection closed\n");
+        return 0;
+    }
+
+    /* successful send */
+    printf("my_IOSend: sent %d bytes to %d\n", sz, sockfd);
+    return sent;
+}
+
 /**
  *
  */
@@ -59,7 +154,6 @@ static void _run(void *argument)
     size_t             len;
     int                shutdown = 0;
     int                ret;
-    const char*        reply = "I hear ya fa shizzle!\n";
 
     /* declare wolfSSL objects */
     WOLFSSL_CTX* ctx;
@@ -67,6 +161,8 @@ static void _run(void *argument)
 
     /* Initialize wolfSSL */
     wolfSSL_Init();
+
+    wolfSSL_Debugging_ON();
 
     /* Create a socket that uses an internet IPv4 address,
      * Sets the socket to be stream based (TCP),
@@ -78,7 +174,7 @@ static void _run(void *argument)
 
     /* Create and initialize WOLFSSL_CTX */
     if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
-        fprintf(stderr, "ERROR: failed to create WOLFSSL_CTX\n");
+        printf("ERROR: failed to create WOLFSSL_CTX\n");
         _error_handler();
     }
 
@@ -93,6 +189,10 @@ static void _run(void *argument)
         printf("ERROR: failed to load server key\n");
         _error_handler();
     }
+
+    /* Register callbacks */
+    wolfSSL_SetIORecv(ctx, my_IORecv);
+    wolfSSL_SetIOSend(ctx, my_IOSend);
 
     /* Initialize the server address struct with zeros */
     memset(&servAddr, 0, sizeof(servAddr));
@@ -158,22 +258,18 @@ static void _run(void *argument)
         if (strncmp(buff, "shutdown", 8) == 0) {
             printf("Shutdown command issued!\n");
             _error_handler();
-        }
-
-        /* Write our reply into buff */
-        memset(buff, 0, sizeof(buff));
-        memcpy(buff, reply, strlen(reply));
-        len = strnlen(buff, sizeof(buff));
+        }        
 
         /* Reply back to the client */
+        len = strnlen(buff, sizeof(buff)-1);
         if (wolfSSL_write(ssl, buff, len) != len) {
             printf("ERROR: failed to write\n");
             _error_handler();
         }
 
-        /* Cleanup after this connection */
-        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-        close(connd);           /* Close the connection to the client   */
+            /* Cleanup after this connection */
+            wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+            close(connd);           /* Close the connection to the client   */
     }
 
     printf("Shutdown complete\n");

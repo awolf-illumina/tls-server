@@ -293,6 +293,7 @@ C_DEFS += -DUSE_HAL_DRIVER
 C_DEFS += -DSTM32H723xx
 C_DEFS += -DDEBUG
 C_DEFS += -DWOLFSSL_USER_SETTINGS
+C_DEFS += -DFREERTOS
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

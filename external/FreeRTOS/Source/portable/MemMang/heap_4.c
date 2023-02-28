@@ -42,6 +42,7 @@ task.h is included from an application file. */
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include <string.h>
 
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
@@ -490,3 +491,28 @@ size_t xBlocks = 0, xMaxSize = 0, xMinSize = portMAX_DELAY; /* portMAX_DELAY use
 	taskEXIT_CRITICAL();
 }
 
+void *pvPortRealloc( void *pv, size_t xWantedSize )
+{
+	void *pvReturn = NULL;
+
+    if(pv)
+    {
+        BlockLink_t *pxLink = (BlockLink_t *)((char*)pv - xHeapStructSize);
+        if(pxLink->xBlockSize & xBlockAllocatedBit)
+        {
+            uint32_t blockSize = (pxLink->xBlockSize & ~xBlockAllocatedBit);
+            blockSize -= xHeapStructSize;
+            pvReturn = pvPortMalloc(xWantedSize);
+            if(pvReturn)
+            {
+                memcpy(pvReturn, pv, blockSize);
+                vPortFree(pv);
+            }
+        }
+    }
+    else {
+        pvReturn = pvPortMalloc(xWantedSize);
+    }
+
+    return pvReturn;
+}

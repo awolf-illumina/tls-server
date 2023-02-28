@@ -69,7 +69,7 @@
 
 #define configMINIMAL_STACK_SIZE		( ( uint16_t ) 512 )
 #if defined(__GNUC__)
- #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 60000 ) )
+ #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 120000 ) )
 #else
  #define configTOTAL_HEAP_SIZE			( ( size_t ) ( 30 * 1024 ) )
 #endif

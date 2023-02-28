@@ -40,7 +40,7 @@ MEMORY
   RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 128K
   ROM    (rx)    : ORIGIN = 0x08000000,   LENGTH = 1024K
   RAM_D2 (xrw)      : ORIGIN = 0x30000000, LENGTH = 288K
-  
+  RAM_D3 (xrw)    : ORIGIN = 0x24020000,   LENGTH = 192K
 }
 
 /* Sections */
@@ -153,7 +153,7 @@ SECTIONS
     . = ALIGN(4);
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
-  } >RAM
+  } >RAM_D3
 
   /* User_heap_stack section, used to check that there is enough "RAM" Ram  type memory left */
   ._user_heap_stack :
