@@ -16,7 +16,7 @@
 #include "lwip/inet.h"
 #include "lwip/sockets.h"
 #include "certs.h"
-
+#include "certificates.h"
 
 /* socket includes */
 #include <sys/socket.h>
@@ -140,6 +140,14 @@ int my_IOSend(WOLFSSL* ssl, char* buff, int sz, void* ctx)
     return sent;
 }
 
+
+static int _verify_callback(int x, WOLFSSL_X509_STORE_CTX* ctx)
+{
+    printf("_verify_callback: error=%d, error_depth=%d, total_certs=%d, domain=%s\n",
+            ctx->error, ctx->error_depth, ctx->totalCerts, ctx->domain);
+    return 1;
+}
+
 /**
  *
  */
@@ -173,19 +181,37 @@ static void _run(void *argument)
     }
 
     /* Create and initialize WOLFSSL_CTX */
-    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_2_server_method())) == NULL) {
+    if ((ctx = wolfSSL_CTX_new(wolfTLSv1_3_server_method())) == NULL) {
         printf("ERROR: failed to create WOLFSSL_CTX\n");
         _error_handler();
     }
 
-    /* Load client certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_certificate_buffer(ctx, SERVER_CERT, SERVER_CERT_LEN, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
-        printf("ERROR: failed to load server certificate\n");
+    /* Load root certificates into WOLFSSL_CTX */
+    const uint8_t *root_cert = NULL;
+    uint32_t root_cer_len = 0u;
+    certificates_get_root_cert(&root_cert, &root_cer_len);
+
+    if (wolfSSL_CTX_load_verify_buffer(ctx, (unsigned char *) root_cert, root_cer_len, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
+        printf("ERROR: failed to load verify certificate\n");
         _error_handler();
     }
 
     /* Load client certificates into WOLFSSL_CTX */
-    if (wolfSSL_CTX_use_PrivateKey_buffer(ctx, SERVER_KEY, SERVER_KEY_LEN, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
+    const uint8_t *server_cert = NULL;
+    uint32_t server_cert_len = 0u;
+    certificates_get_server_cert(&server_cert, &server_cert_len);
+
+    if (wolfSSL_CTX_use_certificate_buffer(ctx, (unsigned char *) server_cert, server_cert_len, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
+        printf("ERROR: failed to load server certificate\n");
+        _error_handler();
+    }
+
+    /* Load client keys into WOLFSSL_CTX */    
+    const uint8_t *server_key = NULL;
+    uint32_t server_key_len = 0u;
+    certificates_get_server_key(&server_key, &server_key_len);
+
+    if (wolfSSL_CTX_use_PrivateKey_buffer(ctx, (unsigned char *) server_key, server_key_len, WOLFSSL_FILETYPE_ASN1) != WOLFSSL_SUCCESS) {
         printf("ERROR: failed to load server key\n");
         _error_handler();
     }
@@ -231,6 +257,8 @@ static void _run(void *argument)
             _error_handler();
         }
 
+        wolfSSL_set_verify(ssl, SSL_VERIFY_PEER | WOLFSSL_VERIFY_CLIENT_ONCE, _verify_callback);
+
         /* Attach wolfSSL to the socket */
         wolfSSL_set_fd(ssl, connd);
 
@@ -267,9 +295,9 @@ static void _run(void *argument)
             _error_handler();
         }
 
-            /* Cleanup after this connection */
-            wolfSSL_free(ssl);      /* Free the wolfSSL object              */
-            close(connd);           /* Close the connection to the client   */
+        /* Cleanup after this connection */
+        wolfSSL_free(ssl);      /* Free the wolfSSL object              */
+        close(connd);           /* Close the connection to the client   */
     }
 
     printf("Shutdown complete\n");

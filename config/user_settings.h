@@ -16,8 +16,8 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __WOLFSSL_I_CUBE_WOLFSSL_CONF_H__
-#define __WOLFSSL_I_CUBE_WOLFSSL_CONF_H__
+#ifndef USER_SETTINGS_H_
+#define USER_SETTINGS_H_
 
 #ifdef __cplusplus
  extern "C" {
@@ -31,7 +31,7 @@
 	MiddleWare version :
 */
 /*---------- WOLF_CONF_DEBUG -----------*/
-#define WOLF_CONF_DEBUG      0
+#define WOLF_CONF_DEBUG      1
 
 /*---------- WOLF_CONF_WOLFCRYPT_ONLY -----------*/
 #define WOLF_CONF_WOLFCRYPT_ONLY      0
@@ -40,10 +40,10 @@
 #define WOLF_CONF_TLS13      1
 
 /*---------- WOLF_CONF_TLS12 -----------*/
-#define WOLF_CONF_TLS12      1
+#define WOLF_CONF_TLS12      0
 
 /*---------- WOLF_CONF_DTLS -----------*/
-#define WOLF_CONF_DTLS      1
+#define WOLF_CONF_DTLS      0
 
 /*---------- WOLF_CONF_MATH -----------*/
 #define WOLF_CONF_MATH      1
@@ -91,7 +91,7 @@
 #define WOLF_CONF_SHA2_384      0
 
 /*---------- WOLF_CONF_SHA2_512 -----------*/
-#define WOLF_CONF_SHA2_512      1
+#define WOLF_CONF_SHA2_512      0
 
 /*---------- WOLF_CONF_SHA3 -----------*/
 #define WOLF_CONF_SHA3      0
@@ -206,6 +206,7 @@
     #define HAL_CONSOLE_UART huart3
     #define WOLFSSL_LWIP
     #define NO_TLS_UART_TEST
+    #define WOLFSSL_ALWAYS_VERIFY_CB
 #else
     #warning Please define a hardware platform!
     /* This means there is not a pre-defined platform for your board/CPU */
