@@ -29,7 +29,12 @@ OPT = -Og
 # paths
 #######################################
 # Build path
-BUILD_DIR = build
+PROJ_DIR := .
+ROOT_DIR := $(PROJ_DIR)
+BUILD_DIR = $(PROJ_DIR)_build
+COMMON_DIR = $(ROOT_DIR)/common
+EXTERNAL_DIR = $(ROOT_DIR)/external
+OPENOCD_PATH = C:/Program Files/OpenOCD-20230202-0.12.0/share/openocd/
 
 ######################################
 # source
@@ -263,12 +268,16 @@ C_INCLUDES += -Iexternal/FreeRTOS/Source/portable/GCC/ARM_CM4F
 #######################################
 PREFIX = arm-none-eabi-
 
-CC = $(PREFIX)gcc
-AS = $(PREFIX)gcc -x assembler-with-cpp
-CP = $(PREFIX)objcopy
-SZ = $(PREFIX)size
+NO_ECHO = @
+ECHO = @echo
+CC = $(NO_ECHO)$(PREFIX)gcc
+AS = $(NO_ECHO)$(PREFIX)gcc -x assembler-with-cpp
+CP = $(NO_ECHO)$(PREFIX)objcopy
+SZ = $(NO_ECHO)$(PREFIX)size
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
+OPENOCD = $(NO_ECHO)openocd
+PYTHON = $(NO_ECHO)python3
 
 #######################################
 # CFLAGS
@@ -336,14 +345,17 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR)
+	$(ECHO) Compiling $<
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+	$(ECHO) Assembling $<
 	$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+	$(ECHO) Building $@
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@ -L$(COMMON_DIR)
 	$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
@@ -360,7 +372,29 @@ $(BUILD_DIR):
 #######################################
 clean:
 	-rm -fR $(BUILD_DIR)
-  
+
+#######################################
+# Flash
+#######################################
+
+flash:
+	$(ECHO) Programming...
+	openocd \
+	-c "gdb_port 50000" \
+	-c "tcl_port 50001" -c "telnet_port 50002" \
+	-f /home/austin/.vscode/extensions/marus25.cortex-debug-1.8.0/support/openocd-helpers.tcl \
+	-f interface/stlink.cfg \
+	-f target/stm32h7x.cfg \
+	-c "program $(BUILD_DIR)/$(TARGET).hex verify reset exit"
+
+#######################################
+# VSCode
+#######################################
+
+vscode:
+	$(PYTHON) -m vscode_c_dev --name="$(TARGET)" --path="$(ROOT_DIR)" --includes="$(C_INCLUDES)" --include-prefix="-I"
+	$(PYTHON) -m vscode_c_dev --name="$(TARGET)" --path="$(ROOT_DIR)" --defines="$(C_DEFS)" --define-prefix="-D"
+
 #######################################
 # dependencies
 #######################################
